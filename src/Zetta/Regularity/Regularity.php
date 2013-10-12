@@ -131,6 +131,41 @@ class Regularity
         return $this->write(sprintf('%%s{%d,%d}', (int) $start, (int) $end) , $pattern);
     }
 
+    /**
+     * @todo
+     */
+    public function atLeast($times, $pattern)
+    {
+        return $this->between($times, null, $pattern);
+    }
+
+    /**
+     * @todo
+     */
+    public function atMost($times, $pattern)
+    {
+        return $this->between(null, $times, $pattern);
+    }
+
+    /**
+     * @todo
+     */
+    public function zeroOrMore($string, $pattern)
+    {
+        return $this->write('%s*',$string, $pattern);
+    }
+
+    /**
+     * @todo
+     */
+    public function oneOrMore($string, $pattern)
+    {
+        return $this->write('%s+',$string, $pattern);
+    }
+
+
+
+
     protected function write($format, $string, $pattern = null)
     {
         $this->regexp .= sprintf($format, $this->interpret($string, $pattern));
