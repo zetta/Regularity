@@ -118,17 +118,24 @@ class Regularity
      */
     public function maybe($string, $pattern = null)
     {
-        return $this->write('%s?',$string, $pattern);
+        $constraint = $this->interpret($string, $pattern);
+        $format = (strlen($constraint) > 1 && !$this->isRegularPattern($string)) ? '(%s)?' : '%s?';
+        return $this->writeRegexp(sprintf($format, $constraint));
     }
 
-    public function oneOf($elements)
+    public function oneOf(array $elements)
     {
-        return $this->write(sprintf('[%s]', implode('|', $elements)), '');
+        foreach ($elements as $key => $value)
+        {
+            $elements[$key] = $this->interpret($value, null);
+        }
+        return $this->writeRegexp(sprintf('(%s)', implode('|', $elements)));
     }
 
-    public function between($start, $end, $pattern = null)
+    public function between($start, $end, $string)
     {
-        return $this->write(sprintf('%%s{%d,%d}', (int) $start, (int) $end) , $pattern);
+        $format = (strlen($string) > 1 && !$this->isRegularPattern($string)) ? '(%s){%s,%s}' : '%s{%s,%s}';
+        return $this->writeRegexp(sprintf($format, $this->interpret($string, null), $start, $end));
     }
 
     /**
@@ -163,12 +170,17 @@ class Regularity
         return $this->write('%s+',$string, $pattern);
     }
 
-
-
-
     protected function write($format, $string, $pattern = null)
     {
-        $this->regexp .= sprintf($format, $this->interpret($string, $pattern));
+        return $this->writeRegexp(sprintf($format, $this->interpret($string, $pattern)));
+    }
+
+    /**
+     * Core!! =)
+     */
+    final protected function writeRegexp($string)
+    {
+        $this->regexp .= $string;
         return $this;
     }
 
@@ -184,7 +196,7 @@ class Regularity
     protected function numberedConstraint($integer, $pattern)
     {
         $constraint = $this->patternedConstraint($pattern);
-        $constraint = (1 == strlen($pattern) || $this->isRegularPattern($pattern)) ? $constraint : '(' . $constraint . ')';
+        $constraint = (1 == strlen($pattern) || $this->isRegularPattern($pattern)) ? $constraint : $this->enclose($constraint);
         return sprintf('%s{%d}', $constraint, (int) $integer);
     }
 
@@ -241,4 +253,15 @@ class Regularity
     {
         return isset(static::$patterns[$this->singularize($pattern)]);
     }
+
+    /**
+     * Encloses a string
+     * @param string
+     * @return string
+     */
+    protected function enclose($string)
+    {
+        return '(' . $string . ')';
+    }
+
 }

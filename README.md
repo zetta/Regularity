@@ -4,7 +4,7 @@ Regularity is a fork friendly regular expression builder for php based in [andre
 pattern-matching against text, but too often they are 'write once, read never'. After all, who wants to try and deciper
 
 ```php
-/^[0-9]{3}-[A-Za-z]{2}#?[a|b]a{2,4}\$$/
+/^[0-9]{3}-[A-Za-z]{2}#?(a|b)a{2,4}\$$/
 ```
 
 when you could express it as:
