@@ -94,31 +94,6 @@ class RegularityTest extends \PHPUnit_Framework_TestCase
 
     }
 
-
-    public function testMaybe()
-    {
-        $regularity = new Regularity();
-        $regularity->maybe('A');
-        $this->assertEquals('A?', $regularity->getExpression());
-
-        $regularity = new Regularity();
-        $regularity->maybe(':digit');
-        $this->assertEquals('[0-9]?', $regularity->getExpression());
-
-        $regularity = new Regularity();
-        $regularity->maybe(4, ':digits');
-        $this->assertEquals('([0-9]{4})?', $regularity->getExpression());
-
-        $regularity = new Regularity();
-        $regularity->maybe(4, 'hola');
-        $this->assertEquals('((hola){4})?', $regularity->getExpression());
-
-        $regularity = new Regularity();
-        $regularity->maybe('hola');
-        $this->assertEquals('(hola)?', $regularity->getExpression());
-    }
-
-
     public function testOneOf()
     {
         $regularity = new Regularity();
@@ -187,14 +162,73 @@ class RegularityTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('(abc){,9}', $regularity->getExpression());
     }
 
+    public function testMaybe()
+    {
+        $regularity = new Regularity();
+        $regularity->maybe('A');
+        $this->assertEquals('A?', $regularity->getExpression());
+
+        $regularity = new Regularity();
+        $regularity->maybe(':digit');
+        $this->assertEquals('[0-9]?', $regularity->getExpression());
+
+        $regularity = new Regularity();
+        $regularity->maybe(4, ':digits');
+        $this->assertEquals('([0-9]{4})?', $regularity->getExpression());
+
+        $regularity = new Regularity();
+        $regularity->maybe(4, 'hola');
+        $this->assertEquals('((hola){4})?', $regularity->getExpression());
+
+        $regularity = new Regularity();
+        $regularity->maybe('hola');
+        $this->assertEquals('(hola)?', $regularity->getExpression());
+    }
+
     public function testZeroOrMore()
     {
-        $this->markTestIncomplete('This test has not been implemented yet.');
+        $regularity = new Regularity();
+        $regularity->zeroOrMore('A');
+        $this->assertEquals('A*', $regularity->getExpression());
+
+        $regularity = new Regularity();
+        $regularity->zeroOrMore(':digit');
+        $this->assertEquals('[0-9]*', $regularity->getExpression());
+
+        $regularity = new Regularity();
+        $regularity->zeroOrMore(4, ':digits');
+        $this->assertEquals('([0-9]{4})*', $regularity->getExpression());
+
+        $regularity = new Regularity();
+        $regularity->zeroOrMore(4, 'hola');
+        $this->assertEquals('((hola){4})*', $regularity->getExpression());
+
+        $regularity = new Regularity();
+        $regularity->zeroOrMore('hola');
+        $this->assertEquals('(hola)*', $regularity->getExpression());
     }
 
     public function testOneOrMore()
     {
-        $this->markTestIncomplete('This test has not been implemented yet.');
+        $regularity = new Regularity();
+        $regularity->oneOrMore('A');
+        $this->assertEquals('A+', $regularity->getExpression());
+
+        $regularity = new Regularity();
+        $regularity->oneOrMore(':digit');
+        $this->assertEquals('[0-9]+', $regularity->getExpression());
+
+        $regularity = new Regularity();
+        $regularity->oneOrMore(4, ':digits');
+        $this->assertEquals('([0-9]{4})+', $regularity->getExpression());
+
+        $regularity = new Regularity();
+        $regularity->oneOrMore(4, 'hola');
+        $this->assertEquals('((hola){4})+', $regularity->getExpression());
+
+        $regularity = new Regularity();
+        $regularity->oneOrMore('hola');
+        $this->assertEquals('(hola)+', $regularity->getExpression());
     }
 
 

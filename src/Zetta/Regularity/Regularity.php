@@ -113,16 +113,6 @@ class Regularity
         return $this->write('%s$', $string, $pattern);
     }
 
-    /**
-     * A substring that maybe appear in a string
-     */
-    public function maybe($string, $pattern = null)
-    {
-        $constraint = $this->interpret($string, $pattern);
-        $format = (strlen($constraint) > 1 && !$this->isRegularPattern($string)) ? '(%s)?' : '%s?';
-        return $this->writeRegexp(sprintf($format, $constraint));
-    }
-
     public function oneOf(array $elements)
     {
         foreach ($elements as $key => $value)
@@ -155,19 +145,33 @@ class Regularity
     }
 
     /**
-     * @todo
+     * A substring that maybe appear in a string
      */
-    public function zeroOrMore($string, $pattern)
+    public function maybe($string, $pattern = null)
     {
-        return $this->write('%s*',$string, $pattern);
+        $constraint = $this->interpret($string, $pattern);
+        $format = (strlen($constraint) > 1 && !$this->isRegularPattern($string)) ? '(%s)?' : '%s?';
+        return $this->writeRegexp(sprintf($format, $constraint));
     }
 
     /**
      * @todo
      */
-    public function oneOrMore($string, $pattern)
+    public function zeroOrMore($string, $pattern = null)
     {
-        return $this->write('%s+',$string, $pattern);
+        $constraint = $this->interpret($string, $pattern);
+        $format = (strlen($constraint) > 1 && !$this->isRegularPattern($string)) ? '(%s)*' : '%s*';
+        return $this->writeRegexp(sprintf($format, $constraint));
+    }
+
+    /**
+     * @todo
+     */
+    public function oneOrMore($string, $pattern = null)
+    {
+        $constraint = $this->interpret($string, $pattern);
+        $format = (strlen($constraint) > 1 && !$this->isRegularPattern($string)) ? '(%s)+' : '%s+';
+        return $this->writeRegexp(sprintf($format, $constraint));
     }
 
     protected function write($format, $string, $pattern = null)
@@ -185,7 +189,7 @@ class Regularity
     }
 
 
-    public function interpret($string, $pattern)
+    protected function interpret($string, $pattern)
     {
         if (null == $pattern)
             return $this->patternedConstraint($string);
@@ -199,7 +203,6 @@ class Regularity
         $constraint = (1 == strlen($pattern) || $this->isRegularPattern($pattern)) ? $constraint : $this->enclose($constraint);
         return sprintf('%s{%d}', $constraint, (int) $integer);
     }
-
 
     /**
      *
