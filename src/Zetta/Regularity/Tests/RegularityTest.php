@@ -3,6 +3,8 @@
 namespace Zetta\Regularity\Tests;
 
 use Zetta\Regularity\Regularity;
+use Zetta\Regularity\Pattern;
+use Zetta\Regularity\Option;
 
 /**
  * @author zetta
@@ -244,6 +246,10 @@ class RegularityTest extends \PHPUnit_Framework_TestCase
         $regularity = new Regularity();
         $regularity->endWith(3, ':digits');
         $this->assertEquals('[0-9]{3}$', $regularity->getExpression());
+
+        $regularity = new Regularity();
+        $regularity->endWith(3, 'xxx');
+        $this->assertEquals('(xxx){3}$', $regularity->getExpression());
     }
 
     /**
@@ -257,6 +263,9 @@ class RegularityTest extends \PHPUnit_Framework_TestCase
             ->startWith('Q');
     }
 
+    /**
+     * Complete Build!!
+     */
     public function testBuild()
     {
         $regularity = new Regularity();
@@ -271,7 +280,46 @@ class RegularityTest extends \PHPUnit_Framework_TestCase
             ->endWith('$')
         ;
 
-        $this->assertEquals('^[0-9]{3}-[A-Za-z]{2}#?(a|b)a{2,4}\$$', (string) $regularity);
+        $this->assertEquals('^[0-9]{3}\-[A-Za-z]{2}#?(a|b)a{2,4}\$$', (string) $regularity);
+        return $regularity;
+    }
+
+    /**
+     * @depends testBuild
+     */
+    public function testTest(Regularity $regularity)
+    {
+        $this->assertTrue($regularity->test('123-Abaaa$'));
+        $this->assertTrue($regularity->test('123-Ab#aaaaa$'));
+        $this->assertFalse($regularity->test('1234-Ab#aaa$'));
+        $this->assertFalse($regularity->test('u123-Abaaa$'));
+
+        $regularity = new Regularity();
+        $regularity
+            ->startWith(2, ':letters')
+            ->then('/')
+            ->append(6, ':alphanumeric')
+        ;
+        $this->assertTrue($regularity->test('ab/abc123'));
+    }
+
+    /**
+     *
+     */
+    public function testModifiers()
+    {
+        $regularity = new Regularity();
+        $regularity
+            ->startWith(3, Pattern::LOWERCASE)
+            ->then(4, Pattern::UPPERCASE)
+            ->endWith(2, Pattern::DIGITS)
+        ;
+        $this->assertTrue($regularity->test('aaaBBBB88'));
+        $this->assertFalse($regularity->test('AaaBBBB88'));
+
+        $regularity->ignoreCase();
+
+        $this->assertTrue($regularity->test('AaaBBBB88'));
     }
 
 }

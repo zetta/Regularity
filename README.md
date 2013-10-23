@@ -4,12 +4,17 @@ Regularity is a fork friendly regular expression builder for php based in [andre
 pattern-matching against text, but too often they are 'write once, read never'. After all, who wants to try and deciper
 
 ```php
-/^[0-9]{3}-[A-Za-z]{2}#?(a|b)a{2,4}\$$/
+if (preg_match("/^[0-9]{3}\-[A-Za-z]{2}#?(a|b)a{2,4}\$$/", $string))
+{
+    // cool stuff
+}
 ```
 
 when you could express it as:
 
 ```php
+use Zetta\Regularity\Regularity;
+
 $regularity = new Regularity()
 $regularity
     ->startWith(3, ':digits')
@@ -19,21 +24,55 @@ $regularity
     ->oneOf(['a','b'])
     ->between(2, 4, 'a')
     ->endWith('$')
+;
+if ($regularity->test($string))
+{
+    // cool stuff
+}
+```
+or using the Pattern Object
+
+```php
+use Zetta\Regularity\Regularity;
+use Zetta\Regularity\Pattern;
+
+$regularity = new Regularity()
+$regularity
+    ->startWith(3, Pattern:DIGITS)
+    ->then('-')
+    ->then(2, Pattern:LETTERS)
+    ->maybe('#')
+    ->oneOf(['a','b'])
+    ->between(2, 4, 'a')
+    ->endWith('$')
+;
 ```
 
 While taking up a bit more space, Regularity expressions are much more readable than their cryptic counterparts.
 
 ### Installation
 
+add the `zetta/regularity` dependency to your composer.json file
+```json
+    "require": {
+        "zetta/regularity" : "*"
+    }
 ```
-composer install zetta/regularity
+and run the installer
+
+```bash
+composer install
 ```
+
+If you dont use composer you can simply copy the contents of `src` folder to your vendors
 
 ### Usage
 
-@todo
+The usage is simple you only need to create an instance of `Regularity` object and start writing rules. See [Methods](#methods)
 
-### DSL methods
+
+
+### Methods
 
 Most methods accept the same pattern signature - you can either specify a patterned constraint such as `then("xyz")`,
 or a numbered constraint such as `then(2, ':digits')`. The following special identifers are supported:
@@ -74,4 +113,6 @@ The following methods are supported:
 
 `atMost(n, pattern)`: Specify that the pattern or identifer should appear n or less times
 
-The DSL methods are chainable, meaning they return `Regularity` object.
+`test(string)`: The test() method tests for a match in a string
+
+The methods are chainable, meaning they return `Regularity` object.

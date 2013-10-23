@@ -30,12 +30,6 @@ class Regularity
     protected $options = null;
 
     /**
-     * This special chars need to be scaped
-     * @var string
-     */
-    protected $escapedChars = '*.?^+$|()[]{}';
-
-    /**
      * 'compiled' regexp
      * @var string
      */
@@ -174,13 +168,51 @@ class Regularity
         return $this->writeRegexp(sprintf($format, $constraint));
     }
 
+    /**
+     * Try to convert the string into the format and interpret the pattern
+     * @param string $format
+     * @param string $string
+     * @param string $pattern
+     */
     protected function write($format, $string, $pattern = null)
     {
         return $this->writeRegexp(sprintf($format, $this->interpret($string, $pattern)));
     }
 
     /**
+     * Check if a given string matches with the current pattern
+     * @param string $string String to check
+     * @return boolean
+     */
+    public function test($string)
+    {
+        return (1 === preg_match($this->getPattern(), $string));
+    }
+
+    /**
+     * Sets the option to set a case-insensitive search
+     * @return Regularity
+     */
+    public function ignoreCase()
+    {
+        $this->addOption(Option::IGNORE_CASE);
+        return $this;
+    }
+
+    /**
+     * Gets the pattern
+     * @return string
+     */
+    public function getPattern()
+    {
+        return '/' . $this->regexp . '/' . $this->options;
+    }
+
+    /**
      * Core!! =)
+     * Write te string to the expression
+     * @param string
+     * @return Regularity
      */
     final protected function writeRegexp($string)
     {
@@ -188,8 +220,13 @@ class Regularity
         return $this;
     }
 
-
-    protected function interpret($string, $pattern)
+    /**
+     * Interpret the string and try to determine what type of contraint is
+     * @param string|int $string
+     * @param string [OPTIONAL] $pattern
+     * @return string
+     */
+    protected function interpret($string, $pattern = null)
     {
         if (null == $pattern)
             return $this->patternedConstraint($string);
@@ -197,6 +234,11 @@ class Regularity
             return $this->numberedConstraint($string, $pattern);
     }
 
+    /**
+     * Works with numbered constraints for example (4, ':digits')
+     * @param int
+     * @param string $pattern
+     */
     protected function numberedConstraint($integer, $pattern)
     {
         $constraint = $this->patternedConstraint($pattern);
@@ -205,7 +247,9 @@ class Regularity
     }
 
     /**
-     *
+     * Works with patterns example ('hello') or (':digit')
+     * @param string $pattern
+     * @return string
      */
     protected function patternedConstraint($pattern)
     {
@@ -230,12 +274,7 @@ class Regularity
      */
     protected function escape($pattern)
     {
-        $escaped = '';
-        for($i=0; $i<strlen($pattern); $i++)
-        {
-            $escaped .= (false === strpos($this->escapedChars, $pattern[$i])) ? $pattern[$i] : '\\'.$pattern[$i];
-        }
-        return $escaped; // @todo
+        return preg_quote($pattern, '/');
     }
 
     /**
@@ -265,6 +304,14 @@ class Regularity
     protected function enclose($string)
     {
         return '(' . $string . ')';
+    }
+
+    /**
+     * Add option
+     */
+    protected function addOption($option)
+    {
+        $this->options .= $option;
     }
 
 }
